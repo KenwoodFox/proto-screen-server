@@ -1,3 +1,3 @@
 [submodule "firmware/libs/lib/Adafruit_MatrixPortal"]
-	path = firmware/libs/lib/Adafruit_MatrixPortal
+	path = firmware/libs/Adafruit_MatrixPortal
 	url = https://github.com/adafruit/Adafruit_CircuitPython_MatrixPortal.git
