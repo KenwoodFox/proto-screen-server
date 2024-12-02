@@ -1,6 +1,6 @@
 // Fetch logs periodically and update the log window
 function fetchLogs() {
-    fetch('/logs')
+    fetch('/api/logs')
         .then(response => response.json())
         .then(data => {
             const logWindow = document.getElementById('log-window');
@@ -19,7 +19,7 @@ document.getElementById('upload-form').addEventListener('submit', function (even
     const fileInput = document.getElementById('file');
     formData.append('file', fileInput.files[0]);
 
-    fetch('/upload', {
+    fetch('/api/upload', {
         method: 'POST',
         body: formData
     })
