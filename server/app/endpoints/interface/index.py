@@ -5,8 +5,6 @@ import os
 
 @interface_blueprint.route("/", methods=["GET"])
 def index():
-    print(current_app.template_folder)
-
     readme_path = os.path.join(os.path.dirname(__file__), "../../../README.md")
     try:
         with open(readme_path, "r") as readme_file:

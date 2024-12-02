@@ -18,10 +18,11 @@ h2 {
 .log-window {
   border: 1px solid green;
   padding: 10px;
-  height: 200px;
-  overflow-y: scroll;
+  height: 300px;
+  overflow-y: auto; /* Enable vertical scrolling */
   background-color: black;
   color: green;
+  font-family: monospace;
 }
 
 .upload-box {
@@ -45,4 +46,17 @@ input[type="file"] {
 button:hover {
   background-color: green;
   color: black;
+}
+
+/* For logs */
+.log-info {
+  color: green;
+}
+
+.log-warning {
+  color: orange;
+}
+
+.log-error {
+  color: red;
 }

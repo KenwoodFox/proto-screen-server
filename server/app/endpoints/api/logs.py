@@ -1,15 +1,15 @@
-from flask import jsonify, current_app
+import logging
+
+from flask import jsonify
 from app.endpoints.api import api_blueprint
-import os
+from app.advanced_logging import memory_log_handler  # Import the global log handler
 
 
 @api_blueprint.route("/logs", methods=["GET"])
 def get_logs():
-    # Example log fetching (Kinda clumsy for now)
-    log_file_path = "app.log"
-    if os.path.exists(log_file_path):
-        with open(log_file_path, "r") as log_file:
-            logs = log_file.readlines()
-    else:
-        logs = ["No logs available."]
-    return jsonify(logs)
+    """
+    Fetch recent logs from the in-memory log stream.
+    """
+
+    logs = memory_log_handler.get_logs()
+    return jsonify({"logs": logs})
