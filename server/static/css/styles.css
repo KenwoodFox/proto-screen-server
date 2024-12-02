@@ -1,0 +1,48 @@
+/* General Styles */
+body {
+  background-color: black;
+  color: green;
+  font-family: Arial, sans-serif;
+  margin: 20px;
+}
+
+h1,
+h2 {
+  color: green;
+}
+
+.section {
+  margin-bottom: 20px;
+}
+
+.log-window {
+  border: 1px solid green;
+  padding: 10px;
+  height: 200px;
+  overflow-y: scroll;
+  background-color: black;
+  color: green;
+}
+
+.upload-box {
+  margin-top: 20px;
+}
+
+input[type="file"],
+button {
+  color: green;
+  background-color: black;
+  border: 1px solid green;
+  padding: 5px;
+  cursor: pointer;
+}
+
+input[type="file"] {
+  display: block;
+  margin-bottom: 10px;
+}
+
+button:hover {
+  background-color: green;
+  color: black;
+}
