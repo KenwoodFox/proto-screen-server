@@ -1,0 +1,7 @@
+{
+    "api_root": "http://localhost:5000/api",
+    "firmware_version": "1.0.1",
+    "offered_id": "screen_1733158294",
+    "server_version": "1.0.0",
+    "time_epoch": 1733158294
+}
