@@ -1,7 +1,7 @@
 import wifi
 import socketpool
 import ssl
-import adafruit_requests
+import adafruit_requests.adafruit_requests as adafruit_requests
 import os
 import time
 
