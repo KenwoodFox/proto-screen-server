@@ -13,9 +13,10 @@ def upload_file():
         return jsonify({"error": "No selected file"}), 400
 
     if file and file.filename.lower().endswith(".gif"):
-        file_path = os.path.join(app.config["UPLOAD_FOLDER"], file.filename)
+        # file_path = os.path.join(app.config["UPLOAD_FOLDER"], file.filename)
+        file_path = os.path.join("/tmp", file.filename)
         file.save(file_path)
-        app.logger.info(f"Uploaded file: {file.filename}")
+        current_app.logger.info(f"Uploaded file: {file.filename}")
         return jsonify({"message": "File uploaded successfully"}), 200
 
     return jsonify({"error": "Unsupported file type, only .gif allowed"}), 400

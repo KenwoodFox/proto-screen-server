@@ -3,6 +3,10 @@ import board
 import displayio
 import terminalio
 
+import adafruit_imageload
+
+from io import BytesIO
+
 from adafruit_matrixportal.matrix import Matrix
 from adafruit_display_text import label
 
@@ -48,3 +52,34 @@ def scroll_text(message, color=0xFFFFFF, speed=0.05):
     while text_area.x + text_area.bounding_box[2] > 0:  # Until the text is fully off-screen
         text_area.x -= 1  # Move text to the left
         time.sleep(speed)
+
+def display_gif_from_memory(gif_data):
+    """Display a GIF from in-memory binary data. (easier than sd storage)"""
+
+    try:
+        # Release any previous display groups
+        display.root_group = None
+
+        # Create a BytesIO stream from the binary data
+        gif_stream = BytesIO(gif_data)
+        gif_stream.seek(0)
+
+        print(f"GIF size in memory: {len(gif_data)} bytes")
+
+        # Load the GIF
+        gif, palette = adafruit_imageload.load(
+            gif_stream,
+            bitmap=displayio.Bitmap,
+            palette=displayio.Palette,
+        )
+        tile_grid = displayio.TileGrid(gif, pixel_shader=palette)
+
+        # Create a display group and add the GIF
+        group = displayio.Group()
+        group.append(tile_grid)
+        display.root_group = group
+
+        print("Displaying GIF from memory")
+    except Exception as e:
+        print(f"Failed to display GIF: {e}")
+        raise(e)
