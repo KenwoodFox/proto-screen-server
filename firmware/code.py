@@ -1,37 +1,34 @@
-import wifi
-import socketpool
-import ssl
-import adafruit_requests
-import os
 import time
+import wifi_setup
+import display_utils
 
-# Get Wi-Fi credentials from settings.toml
-ssid = os.getenv("CIRCUITPY_WIFI_SSID")
-password = os.getenv("CIRCUITPY_WIFI_PASSWORD")
+# Setup Wi-Fi and HTTP session
+requests = wifi_setup.setup_wifi()
 
-# Connect to Wi-Fi
-print(f"Connecting to Wi-Fi: {ssid}...")
-try:
-    wifi.radio.connect(ssid, password)
-    print(f"Connected! IP Address: {wifi.radio.ipv4_address}")
-except Exception as e:
-    print(f"Failed to connect to Wi-Fi: {e}")
+if not requests:
+    display_utils.show_error("Wi-Fi failed!")
+    print("Wi-Fi setup failed. Halting...")
     while True:
-        time.sleep(1)  # Halt here if connection fails
+        time.sleep(1)
 
-# Set up HTTP requests
-print("Setting up HTTP...")
-pool = socketpool.SocketPool(wifi.radio)
-requests = adafruit_requests.Session(pool, ssl.create_default_context())
+# Main loop
+API_ENDPOINT = "https://api.example.com/display-data"
 
-# Test GET Request
-TEST_URL = "http://wifitest.adafruit.com/testwifi/index.html"
+while True:
+    try:
+        print(f"Fetching data from {API_ENDPOINT}...")
+        response = requests.get(API_ENDPOINT)
+        data = response.json()
+        print("Response JSON:", data)
 
-try:
-    print(f"Fetching {TEST_URL}...")
-    response = requests.get(TEST_URL)
-    print("Response Text:")
-    print(response.text)
-    response.close()
-except Exception as e:
-    print(f"Failed to fetch URL: {e}")
+        # Process the data here
+        # Example: display_utils.show_message(data["message"])
+
+        response.close()
+    except Exception as e:
+        error_message = f"Error: {str(e)}"
+        print(error_message)
+        display_utils.show_error(error_message)
+
+    # Wait before the next API call
+    time.sleep(30)

@@ -1,30 +1,50 @@
+import time
 import board
 import displayio
-from adafruit_matrixportal.adafruit_matrixportal.matrix import Matrix
+import terminalio
 
-# Initialize Matrix
-scr_width = 64
-scr_height = 32
+from adafruit_matrixportal.matrix import Matrix
+from adafruit_display_text import label
 
-matrix = Matrix(width=scr_width, height=scr_height)
+
+# Initialize the Matrix display
+matrix = Matrix(width=64, height=32)  # Adjust dimensions to your screen
 display = matrix.display
 
-# Setup Display Group
+# Create a display group
 splash = displayio.Group()
-display.root_group = splash  # Updated for CircuitPython 9.x
+display.root_group = splash
 
-# Bitmap and Palette for the display
-pixel_bitmap = displayio.Bitmap(scr_width, scr_height, 2)  # 2 colors: off/on
-pixel_palette = displayio.Palette(2)
-pixel_palette[0] = 0x000000  # Black (off)
-pixel_palette[1] = 0xFFFFFF  # White (on)
+def show_error(message):
+    """Display an error message on the screen."""
+    # Clear any existing content
+    splash.pop() if len(splash) > 0 else None
 
-# Add TileGrid to the display group
-pixel_tile = displayio.TileGrid(pixel_bitmap, pixel_shader=pixel_palette, x=0, y=0)
-splash.append(pixel_tile)
+    scroll_text(message, color=0xFF0000, speed=0.05)
 
-def show_message(message, x=0, y=0, color=1):
-    """Display a message on the screen."""
-    for i, char in enumerate(message):
-        # Simulate characters as pixels (or replace with more advanced text later)
-        pixel_bitmap[x + i, y] = color  # You could expand this to larger fonts
+def scroll_text(message, color=0xFFFFFF, speed=0.05):
+    """
+    Scroll a message horizontally across the screen.
+    Args:
+        message (str): The text to scroll.
+        color (int): The color of the text.
+        speed (float): Time delay between position updates.
+    """
+    # Clear any existing content
+    splash.pop() if len(splash) > 0 else None
+
+    # Create the text label
+    text_area = label.Label(
+        font=terminalio.FONT,
+        text=message,
+        color=color,
+        x=64,
+        y=16
+    )
+    splash.append(text_area)
+    display.root_group = splash
+
+    # Scroll text across the screen
+    while text_area.x + text_area.bounding_box[2] > 0:  # Until the text is fully off-screen
+        text_area.x -= 1  # Move text to the left
+        time.sleep(speed)
