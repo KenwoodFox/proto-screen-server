@@ -1,9 +1,6 @@
 [submodule "firmware/libs/lib/Adafruit_MatrixPortal"]
 	path = firmware/lib/adafruit_matrixportal
 	url = https://github.com/adafruit/Adafruit_CircuitPython_MatrixPortal.git
-[submodule "firmware/libs/lib_bundle"]
-	path = firmware/lib/lib_bundle
+[submodule "firmware/lib/Adafruit_CircuitPython_Bundle"]
+	path = firmware/lib/Adafruit_CircuitPython_Bundle
 	url = https://github.com/adafruit/Adafruit_CircuitPython_Bundle.git
-[submodule "firmware/libs/fonts_repo"]
-	path = firmware/lib/adafruit_bitmap_font
-	url = https://github.com/adafruit/Adafruit_CircuitPython_Bitmap_Font.git

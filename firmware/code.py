@@ -1,114 +1,51 @@
-import board
-import displayio
-import rgbmatrix
-import framebufferio
 import time
+import json
 
-# Define matrix size and settings
-scr_width = 128
-scr_height = 16
-bit_depth = 2  # Color depth (higher values = more colors, but slower refresh)
-
-# Addressing Pins for ABCDE
-addr_pins = [
-    board.MTX_ADDRB,
-    board.MTX_ADDRA,
-    board.MTX_ADDRC,
-]
-
-# RGB Pins
-rgb_pins = [
-    board.MTX_R1,
-    board.MTX_G1,
-    board.MTX_B1,
-    board.MTX_R2,
-    board.MTX_G2,
-    board.MTX_B2,
-]
-
-# Control Pins
-clock_pin = board.MTX_CLK
-latch_pin = board.MTX_LAT
-oe_pin = board.MTX_OE
-
-# Initialize RGB Matrix
-displayio.release_displays()
-matrix = rgbmatrix.RGBMatrix(
-    width=scr_width,
-    height=scr_height,
-    bit_depth=bit_depth,
-    rgb_pins=rgb_pins,
-    addr_pins=addr_pins,
-    clock_pin=clock_pin,
-    latch_pin=latch_pin,
-    output_enable_pin=oe_pin,
-    tile=1,  # Single row of tiles
-    serpentine=False,
-)
-
-# Attach framebuffer for display control
-display = framebufferio.FramebufferDisplay(matrix, auto_refresh=True)
-
-# Create a Display Group
-splash = displayio.Group()
-display.root_group = splash
-
-# Create a bitmap for pixel control
-pixel_bitmap = displayio.Bitmap(scr_width, scr_height, 2)  # 2 colors: on/off
-pixel_palette = displayio.Palette(2)
-pixel_palette[0] = 0x000000  # Black (Off)
-pixel_palette[1] = 0xFFFFFF  # White (On)
-
-# Add bitmap to display group
-pixel_tile = displayio.TileGrid(pixel_bitmap, pixel_shader=pixel_palette, x=0, y=0)
-splash.append(pixel_tile)
+import wifi_setup
+import fs_utils
+import display_utils
 
 
-# Function to cycle pixels ON
-def pixels_on():
-    for y in range(scr_height):
-        for x in range(scr_width):
-            pixel_bitmap[x, y] = 1  # Turn pixel ON
-            print(f"Enabling {x} and {y}")
-            time.sleep(0.01)  # Small delay for visual effect
+# Setup Wi-Fi and HTTP session
+requests = wifi_setup.setup_wifi()
 
-
-# Function to cycle pixels OFF
-def pixels_off():
-    for y in range(scr_height):
-        for x in range(scr_width):
-            pixel_bitmap[x, y] = 0  # Turn pixel OFF
-            time.sleep(0.01)  # Small delay for visual effect
-
-def test_address_lines():
-    row_map = [
-        (0, 0, 0),  # Row 0
-        (0, 0, 1),  # Row 1
-        (0, 1, 0),  # Row 2
-        (0, 1, 1),  # Row 3
-        (1, 0, 0),  # Row 4
-        (1, 0, 1),  # Row 5
-        (1, 1, 0),  # Row 6
-        (1, 1, 1)   # Row 7
-    ]
-
-    for (a, b, c) in row_map:
-        print(f"Addressing row: A={a}, B={b}, C={c}")
-        for x in range(scr_width):
-            pixel_bitmap[x, a * 4 + b * 2 + c] = 1  # Address row explicitly
+if not requests:
+    display_utils.show_error("Wi-Fi failed!")
+    print("Wi-Fi setup failed. Halting...")
+    while True:
         time.sleep(1)
-        for x in range(scr_width):
-            pixel_bitmap[x, a * 4 + b * 2 + c] = 0
 
+# Constants
+API_ENDPOINT = "https://led.kitsunehosting.net/api/checkin"
+GIF_URL = "https://led.kitsunehosting.net/api/gifs/output.gif" # Can be grabbed!!!!
+SETTINGS_PATH = "/settings.toml"
 
-
-# Main Loop
 while True:
-    # print("Cycling Pixels ON")
-    # pixels_on()
-    # time.sleep(1)  # Pause when fully lit
+    try:
+        print(f"Posting to {API_ENDPOINT}...")
+        payload = {"screen_name": "example_screen"}  # Replace with actual screen name
+        response = requests.post(API_ENDPOINT, json=payload)
+        data = response.json()
+        print("Response JSON:", data)
 
-    # print("Cycling Pixels OFF")
-    # pixels_off()
-    # time.sleep(1)  # Pause when fully cleared
-    test_address_lines()
+        # Save the offered_id to settings.toml
+        if "offered_id" in data:
+            fs_utils.save_to_file("screen_id", data["offered_id"])
+            display_utils.scroll_text(f"ID now: {data['offered_id']}", 0x00FF00)
+
+        # Download the GIF to memory
+        gif_data = fs_utils.download_to_memory(GIF_URL, requests)
+        if gif_data:
+            # Display the GIF from memory
+            display_utils.display_gif_from_memory(gif_data)
+        else:
+            display_utils.show_error("Failed to download GIF")
+
+        response.close()
+    except Exception as e:
+        error_message = f"Error: {str(e)}"
+        display_utils.show_error(error_message)
+        
+
+    # Wait before the next API call
+    time.sleep(30)
